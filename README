@@ -1,0 +1,19 @@
+/**********************************************************************
+ * Developer:   Ezra Velazquez http://ezraezraezra.com
+ * Company:     TokBox         http://www.tokbox.com
+ * 
+ * Date:        September 2011
+ *
+ * Title:       TailgateTok    http://tailgate.opentok.com
+ * Description: Video chat and intant message while watching a live
+ *              game.
+ *
+ * Tech:        AJAX, CSS, CSS3, HTML, JavaScript, JSON, jQuery, 
+ *              MySQL, OpenTok API, PHP
+ * Last Update: Sept 17th, 2011
+ ***********************************************************************/
+ 
+ NOTE: *** 3rd PARTY LIBRARIES HAVE BEEN OMITTED FROM THE PUBLIC REPO ***
+ 
+ Libraries Omitted:  OpenTok     http://www.tokbox.com
+                     jQuery      http://jquery.com
