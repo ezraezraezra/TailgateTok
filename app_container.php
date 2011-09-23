@@ -63,7 +63,7 @@ $tailgate_app = new Tailgate($invited, $u, $t, $o);
 <body>
 	<script type="text/javascript">
 		TB_VIDEO.updateTableId('<?php echo $tailgate_app->table_id; ?>');
-		TB_TAILGATE_APP.updateGlobal('<?php echo $tailgate_app->invited; ?>', '<?php echo $tailgate_app->user_id; ?>', '<?php echo $tailgate_app->table_id; ?>', '<?php echo $tailgate_app->origin_url; ?>');
+		TB_TAILGATE_APP.updateGlobal('<?php echo $tailgate_app->invited; ?>', '<?php echo $tailgate_app->user_id; ?>', '<?php echo $tailgate_app->table_id; ?>', "<?php echo $tailgate_app->origin_url; ?>");
 	</script>
 	<div id="container">
 		<div id="splash_container">
