@@ -34,7 +34,7 @@ var TB_VIDEO = function(){
 		
 		session.publish(divId);
 	}
-	
+	// Gather all streams currently connected
 	function startGetAllStreams(streams) {
 		for (var i = 0; i < streams.length; i++) {
 			if (streams[i].connection.connectionId != session.connection.connectionId) {
@@ -42,19 +42,18 @@ var TB_VIDEO = function(){
 			}
 		}
 	}
-	
-	function subscribeToStreams(streams){
-		for (var i = 0; i < streams.length; i++) {
-			if (streams[i].connection.connectionId != session.connection.connectionId) {
-				
-				for(var x = 0; x < local_conn_ids.length; x++) {
-					if(streams[i].connection.connectionId == local_conn_ids[x]) {
-						session.subscribe(streams[i], "fbID_"+local_fb_ids[x]);
-					}
-				}
-			}
-		}
-	}
+	// Subscribe to individual streams on specific DIVs
+//	function subscribeToStreams(streams){
+//		for (var i = 0; i < streams.length; i++) {
+//			if (streams[i].connection.connectionId != session.connection.connectionId) {
+//				for(var x = 0; x < local_conn_ids.length; x++) {
+//					if(streams[i].connection.connectionId == local_conn_ids[x]) {
+//						session.subscribe(streams[i], "fbID_"+local_fb_ids[x]);
+//					}
+//				}
+//			}
+//		}
+//	}
 	
 	//------------------------------------
 	// OPENTOK EVENT HANDLERS
@@ -66,8 +65,7 @@ var TB_VIDEO = function(){
 			u_id: unique_id,
 			conn_id: session.connection.connectionId
 		}, function(data){
-			//console.log(data);
-			//console.log("session_id passed");
+			// Blah
 		});
 
 		publishStream();
@@ -89,14 +87,11 @@ var TB_VIDEO = function(){
 					}
 				}
 			}
-			
-			console.log(local_conn_ids);
-			console.log(local_fb_ids);
-
+			// Subscribe to stream in a specific DIV
 			for (var i = 0; i < start_streams.length; i++) {
-				for (var x = 0; x < local_conn_ids.length; x++) {
-					if (start_streams[i].connection.connectionId == local_conn_ids[x]) {
-						session.subscribe(start_streams[i], "fbID_" + local_fb_ids[x]);
+				for (var q = 0; q < local_conn_ids.length; q++) {
+					if (start_streams[i].connection.connectionId == local_conn_ids[q]) {
+						session.subscribe(start_streams[i], "fbID_" + local_fb_ids[q]);
 					}
 				}
 			}
@@ -104,7 +99,7 @@ var TB_VIDEO = function(){
 			OT_LayoutContainer.layout();
 		});
 	}
-	
+	// Remove specified user from local instance
 	function streamDestroyedHandler(event){
 		for (var i = 0; i < event.streams.length; i++) {
 			var subscribers = session.getSubscribersForStream(event.streams[i]);
@@ -114,23 +109,23 @@ var TB_VIDEO = function(){
 		}
 		OT_LayoutContainer.layout();
 	}
-	
+	// Get new users who where added to the conversation
 	function signalHandler(event) {
 		if(session.connection.connectionId != event.fromConnection.connectionId) {
 			$.get('php/back.php',{
 				comm: 'get_users',
 				t_id: global_table_id
 			}, function(data_users) {
-				console.log(data_users);
 				for (var x = 0; x < data_users.token_id.length; x++) {
 					var already_on_list = false;
+					// Filter out people who have already been added to the local instance
 					for(var y = 0; y < local_fb_ids.length; y++) {
 						if(data_users.fb_uid[x] == local_fb_ids[y] || session.connection.connectionId == data_users.conn_id[x]) {
 							already_on_list = true;
 						}
 					}
+					// Add people who have NOT been added to the local instance
 					if(already_on_list === false) {
-						console.log(data_users.fb_name[x] + " was not on the list");
 						local_fb_ids.push(data_users.fb_uid[x]);
 						local_conn_ids.push(data_users.conn_id[x]);
 						local_publish.push('false');
@@ -142,10 +137,14 @@ var TB_VIDEO = function(){
 		}
 	}
 	
-	//------------------------------------
-	// LINK CLICK HANDLERS
-	//------------------------------------
+	/** @scope TB_Video */
 	return {
+		/**
+		 * Initializes the TB_Video (OpenTok video conference).  Must be called prior to any other functions.
+		 * @param {String} Session ID of video chat.
+		 * @param {String} Token ID for video chat.
+		 * @param {int} Unique ID for user on MySQL table.
+		 */
 		init: function(_sessionId, _token, _unique_id){
 			sessionId = _sessionId;
 			token = _token;
@@ -157,12 +156,18 @@ var TB_VIDEO = function(){
 			session.addEventListener('streamDestroyed', streamDestroyedHandler);
 			session.addEventListener('signalReceived', signalHandler);
 			
-			OT_LayoutContainer.init("video_container", 300, 500);
+			OT_LayoutContainer.init("video_container", 300, 300);
 			connect();
 		},
+		/**
+		 * Remove from the vieo chat session
+		 */
 		disconnect: function() {
 			session.disconnect();
 		},
+		/**
+		 * Find all users who are publishing their video stream before current user joined
+		 */
 		getOldPublishers: function() {
 			for(var i = 0; i < start_streams.length; i++) {
 				for(var x = 0; x < local_conn_ids.length; x++) {
@@ -173,9 +178,18 @@ var TB_VIDEO = function(){
 			}
 			start_streams = [];
 		},
+		/**
+		 * Send OpenTok signal
+		 */
 		signal: function() {
 			session.signal();
 		},
+		/**
+		 * Update local instance of user's ids.
+		 * @param {Array} Connection ID
+		 * @param {Array} Facebook ID
+		 * @param {Array} If user is publishing
+		 */
 		updateIds: function(_connId, _fb_id, _publish) {
 			local_conn_ids = [];
 			local_fb_ids = [];
@@ -185,6 +199,10 @@ var TB_VIDEO = function(){
 			local_fb_ids = _fb_id;
 			local_publish = _publish;
 		},
+		/**
+		 * Update local instance of table ID
+		 * @param {int} MySQL table ID which contains vital session info
+		 */
 		updateTableId : function(_table_id) {
 			global_table_id = _table_id;
 		}

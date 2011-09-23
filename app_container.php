@@ -13,30 +13,57 @@
 
  -->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
-<script src="js/OT_LayoutContainer.js" type="text/javascript" charset="utf-8"></script>
 <script src="http://staging.tokbox.com/v0.91/js/TB.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="js/jquery-1.5.1.min.js"></script>
+<script src="http://cdn.echoenabled.com/clientapps/v2/jquery-pack.js"></script>
+<script src="http://cdn.echoenabled.com/clientapps/v2/submit.js"></script>
+<script src="http://cdn.echoenabled.com/clientapps/v2/stream.js"></script>
+<script src="js/OT_LayoutContainer.js" type="text/javascript" charset="utf-8"></script>
 <script src="js/TB_Video.js" type="text/javascript" charset="utf-8"></script>
-<script src="js/tailgate_app.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/TB_Tailgate_App.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/TB_Friend_Search.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/TB_Echo_Chat.js"></script>
 <link rel="stylesheet" type="text/css" href="css/style.css" />
-<title>Tailgate</title>
+<link rel="stylesheet" href="css/echo.css" type="text/css" />
+<title>TailgateTok</title>
 </head>
 <?php
+class Tailgate {
+	var $invited;
+	var $user_id;
+	var $table_id;
+	var $origin_url;
+	
+	function Tailgate($i, $u, $t, $o) {
+		$this->user_id = $u;
+		$this->table_id = $t;
+		$this->origin_url = $o;
+		
+		$this->invited = $this->setInvited($i);
+	}
+	
+	function setInvited($i) {
+		if($i == 'true') {
+			return 'true';
+		}
+		else {
+			return 'false';
+		}
+	}
+}
+
 $invited = $_GET['invited'];
 $u = $_GET['u'];
 $t = $_GET['t'];
+$o = $_GET['o'];
 
-if($invited == 'true') {
-	$invited = 'true';
-}
-else {
-	$invited = 'false';
-}
+$tailgate_app = new Tailgate($invited, $u, $t, $o);
+
 ?>
 <body>
 	<script type="text/javascript">
-		TB_VIDEO.updateTableId('<?php echo $t; ?>');
-		TAILGATE_APP.updateGlobal('<?php echo $invited; ?>', '<?php echo $u; ?>', '<?php echo $t; ?>');
+		TB_VIDEO.updateTableId('<?php echo $tailgate_app->table_id; ?>');
+		TB_TAILGATE_APP.updateGlobal('<?php echo $tailgate_app->invited; ?>', '<?php echo $tailgate_app->user_id; ?>', '<?php echo $tailgate_app->table_id; ?>', '<?php echo $tailgate_app->origin_url; ?>');
 	</script>
 	<div id="container">
 		<div id="splash_container">
@@ -50,7 +77,10 @@ else {
 			<ul id="search_results_container">
 			</ul>
 			<div id="video_container"></div>
-			<div id="echo_container"></div>
+			<div id="echo_container">
+				<div id="echo-stream"></div>
+				<div id="submit-form"></div>
+			</div>
 		</div>
 	</div>
 	<div id="fb-root"></div>
